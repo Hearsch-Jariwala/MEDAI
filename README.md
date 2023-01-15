@@ -32,3 +32,6 @@ npm start
 ```
 
 Then the webpage can be accessed through http://172.17.0.2:8501
+
+## Reference
+1. [st_ner_annotate](https://github.com/prasadchandan/st_ner_annotate)
