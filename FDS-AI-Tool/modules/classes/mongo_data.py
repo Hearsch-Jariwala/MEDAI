@@ -1,3 +1,4 @@
+import pandas as pd
 from pymongo import MongoClient
 
 
@@ -22,7 +23,7 @@ class Dataset:
         :param data: data to be stored (ndarray)
         :return: None
         """
-        self.collection.insert_one({"name": name, "data": data})
+        self.collection.insert_one({"name": name, "data": data.to_dict("records")})
 
     def remove(self, name):
         """
@@ -36,9 +37,9 @@ class Dataset:
         """
         Get the data from the collection that corresponds to the given name
         :param name: name of the data (string)
-        :return: data (dictionary)
+        :return: data (pandas dataframe)
         """
-        return self.collection.find_one({"name": name})
+        return pd.DataFrame(self.collection.find_one({"name": name}))
 
     def list_name(self):
         """
@@ -52,8 +53,7 @@ class Dataset:
         Get the shape of data in the collection
         :return: tuple of two lists, first list contains the number of rows and second list contains the number of columns
         """
-        data_shape = [x["data"].shape for x in self.collection.find()]
-        n_rows = [shape[0] for shape in data_shape]
-        n_cols = [shape[1] for shape in data_shape]
+        n_rows = [len(data['data']) for data in self.collection.find()]
+        n_cols = [len(data['data'][0]) for data in self.collection.find()]
 
         return n_rows, n_cols

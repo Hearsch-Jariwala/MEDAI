@@ -1,7 +1,8 @@
 import streamlit as st 
 import pandas as pd
 
-from modules.classes import data
+# from modules.classes import data
+from modules.classes import mongo_data
 from modules.dataset import read, display, split, download
 
 try:
@@ -9,7 +10,8 @@ try:
 	default_idx = st.session_state["default_dataset_idx"]
 
 except:
-	st.session_state["dataset"] = data.Dataset()
+	# st.session_state["dataset"] = data.Dataset()
+	st.session_state["dataset"] = mongo_data.Dataset()
 	dataset = st.session_state["dataset"]
 
 	st.session_state["default_dataset_idx"] = 0
