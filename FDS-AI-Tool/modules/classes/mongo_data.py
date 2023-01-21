@@ -39,7 +39,7 @@ class Dataset:
         :param name: name of the data (string)
         :return: data (pandas dataframe)
         """
-        return pd.DataFrame(self.collection.find_one({"name": name}))
+        return pd.DataFrame(self.collection.find_one({"name": name})["data"])
 
     def list_name(self):
         """
