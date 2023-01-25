@@ -6,7 +6,7 @@ _RELEASE = False
 
 if not _RELEASE:
     _component_func = components.declare_component(
-        "st_ner_annotate", url="http://localhost:5000",
+        "st_ner_annotate", url="http://localhost:6006",
     )
 else:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,21 +43,46 @@ def st_ner_annotate(label, text, ents, key=None):
 # app: `$ streamlit run my_component/__init__.py`
 if not _RELEASE:
     import streamlit as st
+    import sys
+    sys.path.append("..")
+    from modules import utils
 
     st.title("Named entity recognition demo")
-    text = """Manhattan traces its origins to a trading post founded by colonists 
-    from the Dutch Republic in 1624 on Lower Manhattan; the post was named New 
-    Amsterdam in 1626. Manhattan is historically documented to have been purchased 
-    by Dutch colonists from Native Americans in 1626 for 60 guilders, which equals 
-    roughly $1059 in current terms. The territory and its surroundings came under 
-    English control in 1664 and were renamed New York after King Charles II of 
-    England granted the lands to his brother, the Duke of York. New York, based 
-    in present-day Manhattan, served as the capital of the United States from 1785 
-    until 1790. The Statue of Liberty greeted millions of immigrants as they came 
-    to America by ship in the late 19th century and is a world symbol of the United 
-    States and its ideals of liberty and peace. Manhattan became a borough during 
-    the consolidation of New York City in 1898. 
-    """
+    try:
+        dataset = st.session_state["dataset"]
+        default_idx = st.session_state["default_dataset_idx"]
+
+        data_opt = utils.dataset_opt(dataset.list_name(), default_idx)
+        data = dataset.get_data(data_opt)
+
+        col1, col2 = st.columns([4, 6])
+        cols = utils.get_categorical(data, add_hypen=True)
+
+        col_opt = col1.selectbox(
+            "Choose Column",
+            cols,
+            default_idx,
+            key="display_col_opt"
+	    )
+
+        idx = col2.slider(
+            "Choose Index",
+            0,
+            len(data[col_opt]) - 1,
+            0,
+            key="display_idx"
+        )
+
+    except KeyError:
+        st.header("No Dataset Found")
+        st.stop()
+
+    except Exception as e:
+        st.write(e)
+        st.stop()
+
+    data = dataset.get_data(data_opt)
+    text = data[col_opt].to_list()[idx]
 
     nlp = spacy.load("en_core_web_sm")
     entity_labels = nlp.get_pipe('ner').labels

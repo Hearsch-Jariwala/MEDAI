@@ -3,6 +3,7 @@
 - Package requirements specified in /FDS-AI-Tool/requirements.txt
 - Environment requirements
     - Node.js < 16.0.0
+    - Python >= 3.8
 
 ## Environment setup
 ### Backend

@@ -17,9 +17,10 @@ def info(data):
 
 	dtypes = info.Dtype.value_counts()
 	mem = data.memory_usage(deep=True).sum()
+
 	if mem < 1024:
 		mem = F"{mem}+ bytes"
-	if mem < 1048576:
+	elif mem < 1048576:
 		mem = F"{(mem/1024).round(2)}+ KB"
 	else:
 		mem = f"{(mem/1024/1024).round(2)}+ MB"
