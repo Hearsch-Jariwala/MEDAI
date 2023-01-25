@@ -6,7 +6,7 @@ _RELEASE = False
 
 if not _RELEASE:
     _component_func = components.declare_component(
-        "st_ner_annotate", url="http://localhost:5000",
+        "st_ner_annotate", url="http://localhost:6006",
     )
 else:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +43,8 @@ def st_ner_annotate(label, text, ents, key=None):
 # app: `$ streamlit run my_component/__init__.py`
 if not _RELEASE:
     import streamlit as st
+    import sys
+    sys.path.append("..")
     from modules import utils
 
     st.title("Named entity recognition demo")
