@@ -1,7 +1,7 @@
 FROM node:15.14.0
 LABEL MAINTAINER=sc765@duke.edu
-WORKDIR /FDS-AI-Tool/
-COPY ./FDS-AI-Tool ./
+# WORKDIR /FDS-AI-Tool/
+# COPY ./FDS-AI-Tool ./
 
 # Install Python
 RUN apt update &&\
@@ -15,13 +15,16 @@ RUN apt update &&\
     update-alternatives --install /usr/bin/python python /usr/local/bin/python3.8 2
 
 # Install pip
-RUN apt install curl &&\
+RUN apt install curl -y &&\
     curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &&\
-    apt install python3-distutils &&\
     python get-pip.py
 
-RUN make install 
+RUN cd .. &&\
+    rm -rf Python-3.8.12 &&\
+    rm Python-3.8.12.tgz
 
-EXPOSE 8888
+# RUN make install 
 
-CMD ["streamlit", "run", "Home.py", "--server.port", "8888"]
+# EXPOSE 8888
+
+# CMD ["streamlit", "run", "Home.py", "--server.port", "8888"]
