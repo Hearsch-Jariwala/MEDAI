@@ -33,7 +33,7 @@ def barplot(data):
 				key="bar_orient"
 			)
 
-	col1, col2, col3, _ = st.columns([1.5, 1.8, 1.5, 5.5])
+	col1, col2, col3, _ = st.columns([1.5, 1.8, 2, 5.5])
 	set_title = col1.checkbox("Title", key="bar_set_title")
 	set_errorbar = col2.checkbox("Error Bar", True, key="bar_errorbar")
 	annot = col3.checkbox("Annotate", key="bar_annotate")
