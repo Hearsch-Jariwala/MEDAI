@@ -65,7 +65,8 @@ def get_nunique(data, column=None):
 	return n_unique
 
 def update_value(data_opt, new_value):
-	st.session_state["dataset"].data[data_opt] = new_value
+	st.session_state["dataset"].remove(data_opt)
+	st.session_state["dataset"].add(data_opt, new_value)
 
 def add_pipeline(name, class_obj):
 	if "pipeline" in st.session_state:
