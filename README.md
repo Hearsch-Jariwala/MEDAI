@@ -16,7 +16,6 @@ make install
 ```shell
 cd MEDAI/FDS-AI-Tool/frontend
 npm install
-npm run build
 ```
 
 ## Access
