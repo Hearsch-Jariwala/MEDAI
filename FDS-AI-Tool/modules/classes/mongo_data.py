@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from pymongo import MongoClient
 
@@ -12,8 +13,11 @@ class Dataset:
         Initialize a MongoClient object to connect to a MongoDB server
         Initialize a MongoDB database object and a collection object
         """
-        self.client = MongoClient()
-        self.db = self.client.your_db_name
+        # Get environment variables
+        # USER = os.getenv('MongoDB_User')
+        # PASSWORD = os.environ.get('MongoDB_Password')
+        self.client = MongoClient(mongodb+srv://Admin:<xO9CWJG3atKnHoEe>@farmstack.ix0stfo.mongodb.net/?retryWrites=true&w=majority)
+        self.db = self.client.Farmstack
         self.collection = self.db.your_collection_name
 
     def add(self, name, data):
