@@ -1,39 +1,12 @@
-FROM node:15.14.0
+FROM shunianchen/fds:base
 LABEL MAINTAINER=sc765@duke.edu
-# WORKDIR /FDS-AI-Tool/
-# COPY ./FDS-AI-Tool ./
 
-# Install Python
-RUN apt update &&\
-    apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget &&\
-    curl -O https://www.python.org/ftp/python/3.8.12/Python-3.8.12.tgz &&\
-    tar -xzf Python-3.8.12.tgz &&\
-    cd Python-3.8.12 &&\
-    ./configure --enable-optimizations &&\
-    make &&\
-    make install &&\
-    update-alternatives --install /usr/bin/python python /usr/local/bin/python3.8 2
+WORKDIR /FDS-AI-Tool/
+COPY ./FDS-AI-Tool ./
 
-# Install pip
-RUN apt install curl -y &&\
-    curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &&\
-    python get-pip.py
-
-RUN cd .. &&\
-    rm -rf Python-3.8.12 &&\
-    rm Python-3.8.12.tgz
-
-# install mongodb
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - &&\
-    apt-get install gnupg &&\
-    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - &&\
-    echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list &&\
-    apt-get update &&\
-    apt-get install -y mongodb-org=5.0.14 mongodb-org-database=5.0.14 mongodb-org-server=5.0.14 mongodb-org-shell=5.0.14 mongodb-org-mongos=5.0.14 mongodb-org-tools=5.0.14
+RUN make install
+RUN chmod +x run.sh
 
 EXPOSE 8888 6006
-# RUN make install 
 
-
-
-# CMD ["streamlit", "run", "Home.py", "--server.port", "8888"]
+CMD ["./", "run.sh"]
