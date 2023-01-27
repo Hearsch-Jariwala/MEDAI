@@ -23,8 +23,17 @@ RUN cd .. &&\
     rm -rf Python-3.8.12 &&\
     rm Python-3.8.12.tgz
 
+# install mongodb
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - &&\
+    apt-get install gnupg &&\
+    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - &&\
+    echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list &&\
+    apt-get update &&\
+    apt-get install -y mongodb-org=5.0.14 mongodb-org-database=5.0.14 mongodb-org-server=5.0.14 mongodb-org-shell=5.0.14 mongodb-org-mongos=5.0.14 mongodb-org-tools=5.0.14
+
+EXPOSE 8888 6006
 # RUN make install 
 
-# EXPOSE 8888
+
 
 # CMD ["streamlit", "run", "Home.py", "--server.port", "8888"]
