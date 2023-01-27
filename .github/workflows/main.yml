@@ -11,9 +11,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Login to GitHub Package Registry
-      run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login registry.hub.docker.com -p -u ${{ secrets.DOCKERHUB_USERNAME }}
-
     - name: login to azure
       uses: azure/docker-login@v1
       with:

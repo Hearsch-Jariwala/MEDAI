@@ -1,4 +1,4 @@
-FROM shunianchen/fds:base
+FROM shunianchen/venture:base
 LABEL MAINTAINER=sc765@duke.edu
 
 WORKDIR /FDS-AI-Tool/
