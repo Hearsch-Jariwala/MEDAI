@@ -8,6 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    - name: Install
+      run: |
+        make install
     - name: login to azure
       uses: azure/docker-login@v1
       with:
