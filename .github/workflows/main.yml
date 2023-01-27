@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: push to azure
+    - name: login to azure
       uses: azure/docker-login@v1
       with:
         login-server: fluiddatastream.azurecr.io
