@@ -1,0 +1,6 @@
+#! /bin/bash
+
+mkdir data
+mkdir data/db
+mongod --dbpath data/db &
+streamlit run Home.py --server.port 8888
