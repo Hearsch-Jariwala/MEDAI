@@ -4,8 +4,9 @@ LABEL MAINTAINER=sc765@duke.edu
 WORKDIR /FDS-AI-Tool/
 COPY ./FDS-AI-Tool ./
 
-RUN make install
-RUN chmod +x run.sh
+RUN make install &&\
+    chmod +x run.sh &&\
+    sed -i 's/\r$//' run.sh
 
 EXPOSE 8888 6006
 
