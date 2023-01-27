@@ -3,6 +3,8 @@ LABEL MAINTAINER=sc765@duke.edu
 
 WORKDIR /FDS-AI-Tool/
 COPY ./FDS-AI-Tool ./
+COPY ./Makefile ./
+COPY ./requirements.txt ./
 
 RUN make install &&\
     chmod +x run.sh &&\
