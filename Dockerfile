@@ -9,4 +9,4 @@ RUN chmod +x run.sh
 
 EXPOSE 8888 6006
 
-CMD ["./", "run.sh"]
+CMD ["bash", "run.sh"]
