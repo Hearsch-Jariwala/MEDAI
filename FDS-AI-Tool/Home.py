@@ -20,7 +20,7 @@ st.markdown(
 )
 
 st.header("What Do We Have ?")
-with st.expander("1. Dataset"):
+with st.expander(label = "Dataset"):
     st.markdown(
         """
 		
@@ -39,7 +39,7 @@ with st.expander("1. Dataset"):
 		"""
     )
 
-with st.expander("2. Dataframe"):
+with st.expander(label = "Dataframe"):
     st.markdown(
         """
 		
@@ -69,7 +69,7 @@ with st.expander("2. Dataframe"):
 		"""
     )
 
-with st.expander("3. Exploratory Data"):
+with st.expander(label = "Exploratory Data"):
     st.markdown(
         """
 		Exploratory Data Analysis (EDA) is used to analyze the data to discover trends and paterns, so we can get
@@ -83,7 +83,7 @@ with st.expander("3. Exploratory Data"):
 		"""
     )
 
-with st.expander("4. Feature Engineering"):
+with st.expander(label = "Feature Engineering"):
     st.markdown(
         """
 		Feature engineering is mandatory process to prepare an input data that best fits the machine learning algorithms, 
@@ -122,7 +122,7 @@ with st.expander("4. Feature Engineering"):
     )
 
 
-with st.expander("5. Pipeline"):
+with st.expander(label="Pipeline"):
     st.markdown(
         """
 		Do you remember that in machine learning, we split our dataset into training and test set. In the preprocessing step, we only working 
@@ -135,7 +135,7 @@ with st.expander("5. Pipeline"):
 		"""
     )
 
-with st.expander("6. Model Building"):
+with st.expander(label="Model Building"):
     st.markdown(
         """
 		After your dataset is ready, the next step is to build machine learning model. And after building a model, we can find out the performance of 
@@ -146,18 +146,3 @@ with st.expander("6. Model Building"):
 
 		"""
     )
-
-
-def expander_label(idx):
-    hvar = f"""<script>
-				var elements = window.parent.document.querySelectorAll('.streamlit-expanderHeader');
-				elements[{idx}].style.color = 'rgba(255, 255, 255, 1)';
-				elements[{idx}].style.fontFamily = 'sans-serif';
-				elements[{idx}].style.fontSize = 'large';
-			</script>"""
-
-    components.html(hvar, height=0, width=0)
-
-
-for idx in range(6):
-    expander_label(idx)
