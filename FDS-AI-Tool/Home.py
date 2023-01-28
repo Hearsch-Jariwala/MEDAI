@@ -13,7 +13,7 @@ except:
 st.title("Welcome to FDS-Tool!")
 st.markdown(
     """
-	FDS-Tool is an web app to help people to do some machine learning techniques 
+	FDS-Tool is a web app to help people to do some machine learning techniques 
 	such as exploratory data, preprocessing and model building. The most interesting part
 	about this app is that you can do all of those things **WITHOUT CODE**.
 	"""
