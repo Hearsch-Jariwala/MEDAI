@@ -36,4 +36,11 @@ RUN apt install apt-transport-https ca-certificates curl gnupg2 software-propert
     apt update &&\
     apt install docker-ce -y
 
+# install dependencies
+COPY ./Makefile ./
+COPY ./requirements.txt ./
+RUN make install &&\
+    rm Makefile requirements.txt
+
+
 EXPOSE 8888 6006
