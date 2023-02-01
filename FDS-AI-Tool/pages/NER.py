@@ -73,6 +73,8 @@ if not _RELEASE:
             key="display_idx"
         )
 
+        st.session_state["default_dataset_idx"] = 0
+        default_idx = st.session_state["default_dataset_idx"]
     except KeyError:
         st.header("No Dataset Found")
         st.stop()
