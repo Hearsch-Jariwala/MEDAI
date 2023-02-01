@@ -86,12 +86,19 @@ if not _RELEASE:
     data = dataset.get_data(data_opt)
     text = data[col_opt].to_list()[idx]
 
-    nlp = spacy.load("en_core_web_sm")
-    entity_labels = nlp.get_pipe('ner').labels
+    # nlp = spacy.load("en_core_web_sm")
+    # entity_labels = nlp.get_pipe('ner').labels
 
-    doc = nlp(text)
-    ents = doc.to_json()['ents']
+    # doc = nlp(text)
+    # ents = doc.to_json()['ents']
 
-    current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
-    entities = st_ner_annotate(current_entity_type, text, ents, key=42)
-    st.json(entities)
+    # current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
+    # entities = st_ner_annotate(current_entity_type, text, ents, key=42)
+    # st.json(entities)
+
+    from text_highlighter import text_highlighter
+    result = text_highlighter(
+    text=text, labels=["ANIMAL", "LOCATION"]
+    )
+
+    st.write(result)
