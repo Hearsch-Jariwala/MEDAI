@@ -12,6 +12,7 @@ RUN make install &&\
 
 RUN cd frontend &&\
     npm install &&\
+    npm run build &&\
     cd ..
 
 EXPOSE 8888 6006
