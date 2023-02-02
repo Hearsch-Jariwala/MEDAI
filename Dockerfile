@@ -10,9 +10,9 @@ RUN make install &&\
     chmod +x run.sh &&\
     sed -i 's/\r$//' run.sh
 
-# RUN cd frontend &&\
-#     npm install &&\
-#     cd ..
+RUN cd frontend &&\
+    npm install &&\
+    cd ..
 
 EXPOSE 8888 6006
 

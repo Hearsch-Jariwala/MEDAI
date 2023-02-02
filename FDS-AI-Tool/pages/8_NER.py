@@ -5,9 +5,10 @@ import streamlit.components.v1 as components
 _RELEASE = False
 
 if not _RELEASE:
+    parent_dir = os.path.dirname(os.path.join(os.path.abspath(__file__), "../../.."))
+    build_dir = os.path.join(parent_dir, "frontend/public")
     _component_func = components.declare_component(
-        "st_ner_annotate", url="http://localhost:6006",
-    )
+        "st_ner_annotate", path=build_dir)
 else:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     build_dir = os.path.join(parent_dir, "frontend/public")
@@ -86,19 +87,19 @@ if not _RELEASE:
     data = dataset.get_data(data_opt)
     text = data[col_opt].to_list()[idx]
 
-    # nlp = spacy.load("en_core_web_sm")
-    # entity_labels = nlp.get_pipe('ner').labels
+    nlp = spacy.load("en_core_web_sm")
+    entity_labels = nlp.get_pipe('ner').labels
 
-    # doc = nlp(text)
-    # ents = doc.to_json()['ents']
+    doc = nlp(text)
+    ents = doc.to_json()['ents']
 
-    # current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
-    # entities = st_ner_annotate(current_entity_type, text, ents, key=42)
-    # st.json(entities)
+    current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
+    entities = st_ner_annotate(current_entity_type, text, ents, key=42)
+    st.json(entities)
 
-    from text_highlighter import text_highlighter
-    result = text_highlighter(
-    text=text, labels=["ANIMAL", "LOCATION"]
-    )
+    # from text_highlighter import text_highlighter
+    # result = text_highlighter(
+    # text=text, labels=["ANIMAL", "LOCATION"]
+    # )
 
-    st.write(result)
+    # st.write(result)
