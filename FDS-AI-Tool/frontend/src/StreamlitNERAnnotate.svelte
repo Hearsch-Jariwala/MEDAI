@@ -4,7 +4,7 @@
   import MarkedWord from "./components/MarkedWord.svelte";
   import { onMount, afterUpdate, onDestroy } from "svelte"
 
-  let text: string = "";
+  export let text: string = "";
   let ents: {
     start: number;
     end: number;
@@ -14,6 +14,7 @@
   export let disabled: boolean;
   let selectedText: Selection | null = null;
   let mounted = false;
+  let count = 1;
 
   const onRender = (event: Event): void => {
     const data = (event as CustomEvent<RenderData>).detail;
@@ -101,6 +102,7 @@
 </script>
 
 <svelte:window on:mouseup={handleMouseup} />
+
 
 <main {disabled}>
   {#each ents as { start, end, label }, i (start)}
