@@ -5,7 +5,7 @@
   import { onMount, afterUpdate, onDestroy } from "svelte"
 
   export let text: string = "";
-  let ents: {
+  export let ents: {
     start: number;
     end: number;
     label: string;
@@ -23,6 +23,7 @@
       ents = data.args["ents"];
       mounted = true;
     }
+    Streamlit.setComponentValue(ents)
   };
 
   onMount(() => {
