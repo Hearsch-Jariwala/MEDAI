@@ -1,6 +1,14 @@
 import os
+import sys
 import pandas as pd
-from pymongo import MongoClient
+import pymongo
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Constant
+CONNECTION_STRING = os.environ.get("COSMOS_CONNECTION_STRING")
 
 
 class Dataset:
@@ -16,9 +24,9 @@ class Dataset:
         # Get environment variables
         # USER = os.getenv('MongoDB_User')
         # PASSWORD = os.environ.get('MongoDB_Password')
-        self.client = MongoClient()
-        self.db = self.client.your_db_name
-        self.collection = self.db.your_collection_name
+        self.client = pymongo.MongoClient(CONNECTION_STRING)
+        # self.db = self.client.your_db_name
+        # self.collection = self.db.your_collection_name
 
     def add(self, name, data):
         """
@@ -27,7 +35,9 @@ class Dataset:
         :param data: data to be stored (ndarray)
         :return: None
         """
-        self.collection.insert_one({"name": name, "data": data.to_dict("records")})
+        self.collection.insert_one(
+            {"name": name, "data": data.to_dict("records")}
+        )
 
     def remove(self, name):
         """
@@ -57,7 +67,7 @@ class Dataset:
         Get the shape of data in the collection
         :return: tuple of two lists, first list contains the number of rows and second list contains the number of columns
         """
-        n_rows = [len(data['data']) for data in self.collection.find()]
-        n_cols = [len(data['data'][0]) for data in self.collection.find()]
+        n_rows = [len(data["data"]) for data in self.collection.find()]
+        n_cols = [len(data["data"][0]) for data in self.collection.find()]
 
         return n_rows, n_cols

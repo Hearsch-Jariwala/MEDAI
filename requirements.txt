@@ -64,3 +64,4 @@ spacy-loggers==1.0.4
 pymongo==4.3.3
 text-highlighter==0.0.7
 openai==0.26.4
+python-dotenv
