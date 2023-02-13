@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Constant
-CONNECTION_STRING = os.environ.get("COSMOS_CONNECTION_STRING")
 
 
 class Dataset:
@@ -24,9 +23,10 @@ class Dataset:
         # Get environment variables
         # USER = os.getenv('MongoDB_User')
         # PASSWORD = os.environ.get('MongoDB_Password')
-        self.client = pymongo.MongoClient(CONNECTION_STRING)
-        # self.db = self.client.your_db_name
-        # self.collection = self.db.your_collection_name
+        # self.client = pymongo.MongoClient(CONNECTION_STRING)
+        self.client = pymongo.MongoClient()
+        self.db = self.client.your_db_name
+        self.collection = self.db.your_collection_name
 
     def add(self, name, data):
         """

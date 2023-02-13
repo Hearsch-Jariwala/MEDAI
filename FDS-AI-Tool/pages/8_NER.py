@@ -8,35 +8,35 @@ _RELEASE = False
 #     _component_func = components.declare_component(
 #         "st_ner_annotate", url="http://localhost:5000")
 # else:
-parent_dir = os.path.dirname(os.path.join(os.path.abspath(__file__), "../../.."))
-build_dir = os.path.join(parent_dir, "frontend/public")
-_component_func = components.declare_component(
-    "st_ner_annotate", path=build_dir)
+# parent_dir = os.path.dirname(os.path.join(os.path.abspath(__file__), "../../.."))
+# build_dir = os.path.join(parent_dir, "frontend/public")
+# _component_func = components.declare_component(
+#     "st_ner_annotate", path=build_dir)
 
 
-def st_ner_annotate(label, text, ents, key=None):
-    """st_edit_named_entities.
+# def st_ner_annotate(label, text, ents, key=None):
+#     """st_edit_named_entities.
 
-    Parameters
-    ----------
-    text: str
-        Text to render
-    ents: object
-        Entities found in text
-    key: str or None
-        An optional key that uniquely identifies this component. If this is
-        None, and the component's arguments are changed, the component will
-        be re-mounted in the Streamlit frontend and lose its current state.
+#     Parameters
+#     ----------
+#     text: str
+#         Text to render
+#     ents: object
+#         Entities found in text
+#     key: str or None
+#         An optional key that uniquely identifies this component. If this is
+#         None, and the component's arguments are changed, the component will
+#         be re-mounted in the Streamlit frontend and lose its current state.
 
-    Returns
-    -------
-    object
-        Entities that have been selected
-    """
-    component_value = _component_func(
-        label=label, text=text, ents=ents, key=key, default=ents)
+#     Returns
+#     -------
+#     object
+#         Entities that have been selected
+#     """
+#     component_value = _component_func(
+#         label=label, text=text, ents=ents, key=key, default=ents)
 
-    return component_value
+#     return component_value
 
 
 # app: `$ streamlit run my_component/__init__.py`
@@ -85,30 +85,30 @@ if not _RELEASE:
     nlp = spacy.load("en_core_web_sm")
     entity_labels = nlp.get_pipe('ner').labels
 
-    try:
-        state = st.session_state["state"]
-        ents = st.session_state["ents"]
-    except:
-        state = True
-        st.session_state["state"] = state
-        doc = nlp(text)
-        ents = doc.to_json()['ents']
+    # try:
+    #     state = st.session_state["state"]
+    #     ents = st.session_state["ents"]
+    #     print("state: ", True)
+    # except:
+    #     st.session_state["state"] = True
+    #     doc = nlp(text)
+    #     ents = doc.to_json()['ents']
 
-    if state:
-        
+    #     current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
+    #     entities = st_ner_annotate(current_entity_type, text, ents, key=42)
+    #     st.session_state["ents"] = entities
+    #     print("state: ", False)
+    
+    # current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
+    # entities = st_ner_annotate(current_entity_type, text, ents, key=42)
+    # st.session_state["ents"] = entities
+    # st.json(entities)
 
-        current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
-        entities = st_ner_annotate(current_entity_type, text, ents, key=42)
-        
-    else:
-        current_entity_type = st.selectbox("Mark for Entity Type", entity_labels)
-        entities = st_ner_annotate(current_entity_type, text, ents, key=42)
-    st.json(entities)
-    st.session_state["state"] = False
+    
 
-    # from text_highlighter import text_highlighter
-    # result = text_highlighter(
-    # text=text, labels=["ANIMAL", "LOCATION"]
-    # )
+    from text_highlighter import text_highlighter
+    result = text_highlighter(
+    text=text, labels=entity_labels
+    )
 
-    # st.write(result)
+    st.write(result)
