@@ -65,7 +65,8 @@ The function of prefixes containing * is operational, while the others are demon
 
 Please answer the question in a step by step manner that can be followed using the functions mentioned above. For example:
 question: How can I fill in the missing values?
-answer: 1. 3a1 Exploratory Data tab, Statistics, Display, find the columns with null values
+answer: 
+1. 3a1 Exploratory Data tab, Statistics, Display, find the columns with null values
 2. 4c, Feature Engineering tab, Imputation, impute the null values
 question:"""
 
