@@ -6,5 +6,5 @@ install:
 deploy:
 	docker login fluidds.azurecr.io
 	docker build -t fds .
-	docker tag fds:latest fluiddatastream.azurecr.io/fds:latest
-	docker push fluiddatastream.azurecr.io/fds:latest
+	docker tag fds:latest fluidds.azurecr.io/fds:latest
+	docker push fluidds.azurecr.io/fds:latest
