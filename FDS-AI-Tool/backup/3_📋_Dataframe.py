@@ -18,25 +18,29 @@ except Exception as e:
 	st.write(e)
 	st.stop()
 
-menus = ["Display", "Information", "Statistics", "Correlation", "Duplicate", "Group"]
+# menus = ["Display", "Information", "Statistics", "Correlation", "Duplicate", "Group"]
+menus = ["Display", "Correlation", "Duplicate", "Aggregation"]
+
 tabs = st.tabs(menus)
 
 with tabs[0]:
 	display.display(data)
-
-with tabs[1]:
 	info.info(data)
-
-with tabs[2]:
 	stats.stats(data)
 
-with tabs[3]:
+# with tabs[1]:
+	# info.info(data)
+
+# with tabs[2]:
+	# stats.stats(data)
+
+with tabs[1]:
 	correlation.correlation(data)
 
-with tabs[4]:
+with tabs[2]:
 	duplicate.duplicate(data, data_opt)
 
-with tabs[5]:
+with tabs[3]:
 	# Bug: Return None when some columns dropped
 
 	group.group(data)
