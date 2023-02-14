@@ -64,11 +64,14 @@ if not _RELEASE:
 
     col1, col2 = st.columns([4, 6])
     cols = utils.get_categorical(data, add_hypen=True)
-
+    cols.remove("-")
+    if len(cols) == 0:
+        st.header("No Categorical Data Found")
+        st.stop()
+    
     col_opt = col1.selectbox(
         "Choose Column",
         cols,
-        default_idx,
         key="display_col_opt"
     )
 
