@@ -1,4 +1,4 @@
-FROM python:3.8.16-alpine3.17
+FROM python:3.8.16-slim-bullseye
 LABEL MAINTAINER=sc765@duke.edu
 
 # # Install Python
@@ -21,13 +21,18 @@ LABEL MAINTAINER=sc765@duke.edu
 #     rm -rf Python-3.8.12 &&\
 #     rm Python-3.8.12.tgz
 
-# install mongodb
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - &&\
-    apt-get install gnupg &&\
-    wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - &&\
-    echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list &&\
+# # install mongodb
+RUN apt-get update &&\
+    apt-get install -y gnupg &&\
+    apt-get install -y wget &&\
+    wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add - &&\
+    echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list &&\
     apt-get update &&\
-    apt-get install -y mongodb-org=5.0.14 mongodb-org-database=5.0.14 mongodb-org-server=5.0.14 mongodb-org-shell=5.0.14 mongodb-org-mongos=5.0.14 mongodb-org-tools=5.0.14
+    apt-get install -y mongodb-org=6.0.4 mongodb-org-database=6.0.4 mongodb-org-server=6.0.4 mongodb-org-mongos=6.0.4 mongodb-org-tools=6.0.4
+
+# install make
+RUN apt-get update &&\
+    apt-get install -y make
 
 # #install docker
 # RUN apt install apt-transport-https ca-certificates curl gnupg2 software-properties-common -y &&\
