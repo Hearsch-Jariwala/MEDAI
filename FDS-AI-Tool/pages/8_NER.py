@@ -1,6 +1,7 @@
 import os
 import spacy
 import streamlit.components.v1 as components
+from modules.classes import mongo_data
 
 _RELEASE = False
 
@@ -38,6 +39,27 @@ _RELEASE = False
 
 #     return component_value
 
+def set_up():
+    if "row_idx" not in st.session_state:
+        st.session_state["row_idx"] = {}
+    if "dataset" not in st.session_state:
+        st.session_state["dataset"] = mongo_data.Dataset()
+
+    if "default_dataset_idx" not in st.session_state:
+        st.session_state["default_dataset_idx"] = 0
+
+    return st.session_state["dataset"], st.session_state["default_dataset_idx"]
+
+def update_slider_values():
+    number = st.session_state["idx_number"]
+    if 0 <= number < len(data[col_opt]):
+        st.session_state["idx_slider"] = number
+
+def update_number_values():
+    slider = st.session_state["idx_slider"]
+    st.session_state["idx_number"] = slider
+
+
 
 # app: `$ streamlit run my_component/__init__.py`
 if not _RELEASE:
@@ -47,20 +69,13 @@ if not _RELEASE:
     from modules import utils
 
     st.title("Named entity recognition demo")
-    try:
-        dataset = st.session_state["dataset"]
-        default_idx = st.session_state["default_dataset_idx"]
-
-    except KeyError:
-        st.header("No Dataset Found")
-        st.stop()
-
-    except Exception as e:
-        st.write(e)
-        st.stop()
-
+    
+    dataset, default_idx = set_up()
+    
     data_opt = utils.dataset_opt(dataset.list_name(), default_idx)
     data = dataset.get_data(data_opt)
+    row_idx = st.session_state["row_idx"].get(data_opt, 0)
+    st.session_state["row_idx"][data_opt] = row_idx
 
     col1, col2 = st.columns([4, 6])
     cols = utils.get_categorical(data, add_hypen=True)
@@ -75,16 +90,21 @@ if not _RELEASE:
         key="display_col_opt"
     )
 
-    idx = col2.slider(
+    row_idx = col2.slider(
         "Choose Index",
         0,
         len(data[col_opt]) - 1,
-        0,
-        key="display_idx"
+        st.session_state["row_idx"][data_opt],
+        key="idx_slider",
+        on_change=update_number_values
     )
+    
+    row_idx = st.number_input("Index", value=row_idx, disabled=False, key="idx_number", on_change=update_slider_values)
+    
+    
 
     data = dataset.get_data(data_opt)
-    text = data[col_opt].to_list()[idx]
+    text = data[col_opt].to_list()[row_idx]
     nlp = spacy.load("en_core_web_sm")
     entity_labels = nlp.get_pipe('ner').labels
 
@@ -108,10 +128,11 @@ if not _RELEASE:
     # st.json(entities)
 
     
-
+    
     from text_highlighter import text_highlighter
     result = text_highlighter(
     text=text, labels=entity_labels
     )
+
 
     st.write(result)
