@@ -3,6 +3,7 @@ import spacy
 import streamlit.components.v1 as components
 from modules.classes import mongo_data
 
+
 _RELEASE = False
 
 # if not _RELEASE:
@@ -57,7 +58,8 @@ def update_slider_values():
 
 def update_number_values():
     slider = st.session_state["idx_slider"]
-    st.session_state["idx_number"] = slider
+    if 0 <= slider < len(data[col_opt]):
+        st.session_state["idx_number"] = slider
 
 
 
