@@ -59,3 +59,14 @@ def scaling(data, data_opt):
 		st.success("Success")
 
 		utils.rerun()
+
+def scaling_criteria(numerical, categorical, null, duplicate):
+	return True if numerical != "none" else False
+
+def add_to_pipeline(data, add_pipeline):
+	if add_pipeline:
+		vars = utils.get_numerical(data)
+		sc = scaler.Scaler("Standard Scaler", vars)
+
+		name = f"Feature scaling using Standard Scaler"
+		utils.add_pipeline(name, sc)

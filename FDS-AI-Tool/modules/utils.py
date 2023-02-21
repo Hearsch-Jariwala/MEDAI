@@ -23,7 +23,7 @@ def get_variables(data, add_hypen=False):
 	return variables
 
 def get_categorical(data, add_hypen=False):
-	cat_var = data.loc[:, data.dtypes == 'object'].columns.to_list()
+	cat_var = data.select_dtypes(include=['object', 'category']).columns.tolist()
 
 	if add_hypen:
 		cat_var.insert(0, "-")
@@ -31,7 +31,7 @@ def get_categorical(data, add_hypen=False):
 	return cat_var
 	
 def get_numerical(data, add_hypen=False):
-	num_var = data.loc[:, data.dtypes != 'object'].columns.to_list()
+	num_var = data.select_dtypes(include=['int64', 'float64']).columns.tolist()
 
 	if add_hypen:
 		num_var.insert(0, "-")

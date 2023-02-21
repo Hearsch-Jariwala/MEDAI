@@ -4,6 +4,8 @@ import streamlit as st
 import openai
 from modules.classes import mongo_data
 from modules import utils
+from modules.dataframe import duplicate
+from modules.feature import change_dtype, imputation, encoding, scaling, creation, dropping
 
 
 # OpenAI API key
@@ -43,14 +45,14 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         1. Home tab: A brief description of the functionality of the tool
         2. Dataset tab: Operations regarding I/O of datasets
         a. Dataset List: list the dataset name of existing datasets, and let the user select the default dataset for other operations. Users can also delete datasets here.
-        b*. Read Dataset: Users can load the dataset to the tool, by uploading from the local machine, loading from GitHub URL, manually inputting, or trying with a sample dataset.
-        c*. Split Dataset: Users can split the dataset into different datasets, e.g., train set and test set. Users can also specify the percentage of the test set and the random state of the split.
-        d*. Download Dataset: Users can display the data, set the download name, set the download parameter such as including the header and index here, and download the dataset here.
+        b. Read Dataset: Users can load the dataset to the tool, by uploading from the local machine, loading from GitHub URL, manually inputting, or trying with a sample dataset.
+        c. Split Dataset: Users can split the dataset into different datasets, e.g., train set and test set. Users can also specify the percentage of the test set and the random state of the split.
+        d. Download Dataset: Users can display the data, set the download name, set the download parameter such as including the header and index here, and download the dataset here.
         3. Exploratory Data tab: Explore the dataset by graphs and statistics of the dataset
         a. Statistics
         a1. Display: Users can display the dataset to see the exact content of the dataset, display the information of the dataset such as null value, unique value and data type by column, and calculate the statistics such as count, mean, standard deviation by column
         a2. Correlation: Calculate the correlation between each column
-        a3*. Duplicate: Find duplicate rows and delete them
+        a3. Duplicate: Find duplicate rows and delete them
         a4. Aggregation: Perform aggregation functions by selected column values
         b. Graph
         b1. bar plot
@@ -82,17 +84,17 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
     sample_answers_with_null = f'''
         Question: How can I clean the dataset
         Answer:
-        1. <4c> Feature Engineering tab, Imputation, impute the null values, which are {null_cols}
-        2. <4d> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
-        3. <4e> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
+        1. <4c*> Feature Engineering tab, Imputation, impute the null values, which are {null_cols}
+        2. <4d*> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
+        3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
         ''' if null_cols != 'No' else " "
     
     sample_answers_with_duplicate = f'''
         Question: How can I clean the dataset
         Answer:
         1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows
-        2. <4d> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
-        3. <4e> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
+        2. <4d*> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
+        3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
         ''' if has_duplicate == "has" else " "
 
     
@@ -100,7 +102,7 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         Question: How can I fill in the missing values
         Answer:
         1. <3a1> Exploratory Data tab, Statistics, Display, find the columns with null values
-        2. <4c> Feature Engineering tab, Imputation, impute the null values
+        2. <4c*> Feature Engineering tab, Imputation, impute the null values
         
         Question: How can I find the correlation between columns
         Answer:
@@ -125,14 +127,33 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         {sample_questions}
         Question: """
 
-    print(prompt)
+    # print(prompt)
     if user_input:
         response = generate_response(prompt + user_input)
         tags = re.findall(r'<(.*?)>', response)
-        print(tags)
+        # print(tags)
         # remove all the tags in the response
         response = re.sub(r'<(.*?)>', '', response)
+        mapping = {
+            '1': 'Home',
+            '3a3': duplicate.duplicate,
+            "4b": {"name": "Change Data Type", "function": change_dtype.add_to_pipeline, "criteria": change_dtype.change_dtype_criteria, "error_msg": "All columns are the same data type"},
+            "4c": {"name": "Imputation", "function": imputation.add_to_pipeline, "criteria": imputation.impute_criteria, "error_msg": "No null value in the dataset"},
+            "4d": {"name": "Encoding", "function": encoding.add_to_pipeline, "criteria": encoding.encoding_criteria, "error_msg": "No categorical column in the dataset"},
+            "4e": {"name": "Scaling", "function": scaling.add_to_pipeline, "criteria": scaling.scaling_criteria, "error_msg": "No numerical column in the dataset"},
+            }
 
+
+        for tag in tags:
+            if "*" in tag:
+                tag = tag[:-1]
+                if mapping[tag]['criteria'](numerical_cols, categorical_cols, null_cols, has_duplicate):
+                    c1, c2 = st.columns(2)
+                    c1.write(mapping[tag]['name'])
+                    add_to_pipe = c2.checkbox("Add to pipeline")
+                    mapping[tag]['function'](data, add_to_pipe)
+                else:
+                    st.write(f"{mapping[tag]['error_msg']}")
         
         st.success(response)
 
@@ -141,8 +162,8 @@ data_opt = utils.dataset_opt(dataset.list_name(), default_idx)
 data = dataset.get_data(data_opt)
 rows, cols = data.shape
 columns = ", ".join(data.columns.tolist())
-numerical_cols = ", ".join(data.select_dtypes(include=['int64', 'float64']).columns.tolist()) if data.select_dtypes(include=['int64', 'float64']).columns.tolist() else "none"
-categorical_cols = ", ".join(data.select_dtypes(include=['object']).columns.tolist()) if data.select_dtypes(include=['object']).columns.tolist() else "none"
+numerical_cols = ", ".join(utils.get_numerical(data)) if utils.get_numerical(data) else "none"
+categorical_cols = ", ".join(utils.get_categorical(data)) if utils.get_categorical(data) else "none"
 null_cols = ", ".join(data.columns[data.isnull().any()].tolist()) if data.isnull().any().any() else "No"
 has_duplicates = "has" if data.duplicated().any() else "has no"
 

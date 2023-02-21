@@ -117,3 +117,15 @@ def target_encoding(data, data_opt, var, num_var, add_pipeline):
 		st.success("Success")
 
 		utils.rerun()
+	
+
+def encoding_criteria(numerical, categorical, null, duplicate):
+	return True if categorical != "none" else False
+
+def add_to_pipeline(data, add_pipeline):
+	if add_pipeline:
+		vars = utils.get_categorical(data)
+		for var in vars:
+			enc = encoder.Encoder(strategy="onehot", column=var)
+			name = f"{var} one-hot encoding"
+			utils.add_pipeline(name, enc)

@@ -68,6 +68,26 @@ def impute_num(data, var, low_cardinality):
 
 	return strat, fill_group, constant
 
+def impute_criteria(numerical, categorical, null, duplicate):
+	return True if null != "No" else False
+
+def add_to_pipeline(data, add_to_pipeline):
+	num_var = utils.get_numerical(data)
+	null_var = utils.get_null(data)
+
+	if len(null_var) and add_to_pipeline:
+		for var in null_var:
+			if var in num_var:
+				name = f"{var} imputation"
+				imp = imputer.Imputer(strategy="mean", columns=[var])
+			else:
+				name = f"{var} imputation"
+				imp = imputer.Imputer(strategy="mode", columns=[var])
+			utils.add_pipeline(name, imp)
+
+
+	st.success("Success")
+
 def impute_cat(data, var, low_cardinality):
 	fill_group, constant = None, None
 

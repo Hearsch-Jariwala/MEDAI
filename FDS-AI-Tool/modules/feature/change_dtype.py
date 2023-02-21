@@ -81,6 +81,21 @@ def change_dtype(data, data_opt):
 		else:
 			st.error("Conversion Failed!")
 
+def change_dtype_criteria(numerical, categorical, null, duplicate):
+	return True
+
+def add_to_pipeline(data, add_pipeline):
+	# change all the numerical columns in data to float64
+	change_dict = {var: "float64" for var in utils.get_numerical(data)}
+	# change all the categorical columns in data to str
+	change_dict.update({var: "str" for var in utils.get_categorical(data)})
+
+	chg = dtype_changer.DtypeChanger(change_dict)
+
+	if add_pipeline:
+		name = f"Change {', '.join(change_dict.keys())} column dtype"
+		utils.add_pipeline(name, chg)
+	
 
 def change_check(data, var, dtype):
 	try:
