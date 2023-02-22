@@ -10,7 +10,7 @@ except:
     st.session_state["list_data"] = ["-"]
     list_data = st.session_state["list_data"]
 
-st.image("/root/MEDAI/FDS-AI-Tool/imgs/logo.png", use_column_width=True)
+st.image("imgs/logo.png", use_column_width=True)
 st.title("Welcome to Fluid Data Stream!")
 st.markdown(
     """
