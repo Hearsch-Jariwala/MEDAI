@@ -3,13 +3,14 @@ import time
 
 from modules.classes import pipeline
 
-def dataset_opt(list_data, default_idx):
+def dataset_opt(list_data, default_idx, on_change=None):
 	col1, _ = st.columns([4,6])
 	data_opt = col1.selectbox(
 		"Choose Data",
 		list_data,
 		default_idx,
-		key="display_data_opt"
+		key="display_data_opt",
+		on_change=on_change
 	)
 
 	return data_opt
