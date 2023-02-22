@@ -85,9 +85,6 @@ def add_to_pipeline(data, add_to_pipeline):
 				imp = imputer.Imputer(strategy="mode", columns=[var])
 			utils.add_pipeline(name, imp)
 
-
-	st.success("Success")
-
 def impute_cat(data, var, low_cardinality):
 	fill_group, constant = None, None
 
