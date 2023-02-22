@@ -1,7 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 
-st.set_page_config(page_title="Home")
+st.set_page_config(page_title="Home", initial_sidebar_state="auto")
 
 try:
     dataset = st.session_state["dataset"]
@@ -10,7 +10,8 @@ except:
     st.session_state["list_data"] = ["-"]
     list_data = st.session_state["list_data"]
 
-st.title("Welcome to FDS-Tool!")
+st.image("/root/MEDAI/FDS-AI-Tool/imgs/logo.png", use_column_width=True)
+st.title("Welcome to Fluid Data Stream!")
 st.markdown(
     """
 	FDS-Tool is a web app to help people to do some machine learning techniques 
@@ -41,53 +42,57 @@ with st.expander(label = "Dataset"):
 		"""
     )
 
-with st.expander(label = "Dataframe"):
-    st.markdown(
-        """
-		#### Display
-
-		Display your dataset in the data frame structure, which is a 2-dimensional table of rows and columns much 
-		like a spreadsheet.
-
-		#### Information
-
-		Every important information you need to know about your datasets such as total column, column name, a total 
-		of non-null values, percentage of null values, total of unique values, column data type, and memory needed 
-		to store your dataset.
-
-		#### Statistics
-
-		Descriptive statistics include those that summarize the central tendency, dispersion, and shape of a dataset's 
-		distribution.
-
-		#### Correlation
-
-		Measure the size and direction of a relationship between two or more variables in your dataset. Here, you can 
-		use 3 different methods to measure the correlation coefficient, i.e. Pearson, Kendall, and spearman. You can 
-		also display the correlation value in a table, heatmap, and feature pair.
-
-		#### Duplicate
-
-		Check if there are duplicate data in your dataset.
-
-		#### Group
-
-		Group your data by variable(s) or column(s) and then apply the aggregate function.
-		"""
-    )
-
 with st.expander(label = "Exploratory Data"):
-    st.markdown(
-        """
-		Exploratory Data Analysis (EDA) is used to analyze the data to discover trends and patterns, so we can get a 
-		better understanding of the bigger picture and insights into the data. EDA is often performed with the help 
-		of several data visualization techniques.
-		
-		In this app, we provide some data visualization techniques that you can use to explore the data i.e. Bar Plot, 
-		Pie Plot, Count Plot, Histogram, Box Plot, Violin Plot, Scatter Plot, Regression Plot, and Line Plot.
+	st.markdown(
+	"""
 
-		"""
-    )
+	Exploratory Data Analysis (EDA) is used to analyze the data to discover trends and patterns, so we can get a 
+	better understanding of the bigger picture and insights into the data. EDA is often performed with the help 
+	of several data visualization techniques.
+        
+	### Data Visualization
+	
+	In this app, we provide some data visualization techniques that you can use to explore the data i.e. Bar Plot, 
+	Pie Plot, Count Plot, Histogram, Box Plot, Violin Plot, Scatter Plot, Regression Plot, and Line Plot.
+
+	### Data Exploration
+	
+	You can also use the Statistics, Correlation, Duplicate, and Aggregation tab to explore your data.
+	
+	#### Display
+
+	Display your dataset in the data frame structure, which is a 2-dimensional table of rows and columns much 
+	like a spreadsheet.
+
+	#### Information
+
+	Every important information you need to know about your datasets such as total column, column name, a total 
+	of non-null values, percentage of null values, total of unique values, column data type, and memory needed 
+	to store your dataset.
+
+	#### Statistics
+
+	Descriptive statistics include those that summarize the central tendency, dispersion, and shape of a dataset's 
+	distribution.
+
+	#### Correlation
+
+	Measure the size and direction of a relationship between two or more variables in your dataset. Here, you can 
+	use 3 different methods to measure the correlation coefficient, i.e. Pearson, Kendall, and spearman. You can 
+	also display the correlation value in a table, heatmap, and feature pair.
+
+	#### Duplicate
+
+	Check if there are duplicate data in your dataset.
+
+	#### Group
+
+	Group your data by variable(s) or column(s) and then apply the aggregate function.
+	"""
+)
+
+
+
 
 with st.expander(label = "Feature Engineering"):
     st.markdown(
