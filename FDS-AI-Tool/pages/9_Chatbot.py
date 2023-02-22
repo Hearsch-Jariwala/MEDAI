@@ -34,7 +34,7 @@ def set_up():
 def reset():
     st.session_state["to_pipeline"] = []
     st.session_state["history_query"] = []
-    st.session_state["last_query"] = ""
+
 
 # Function to generate responses using OpenAI's text generation API
 def generate_response(prompt):
@@ -151,7 +151,7 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
     
     if len(st.session_state["history_query"]) == 0:
         st.session_state["history_query"].append(prompt)
-
+    
     # print(prompt)
     if user_input and user_input != st.session_state["last_query"]:
         response = generate_response(prompt + user_input)
@@ -161,13 +161,13 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
 
         # print(response)
     if len(st.session_state["history_query"]) > 1:
-        print(st.session_state["last_query"])
+        # print(st.session_state["last_query"])
         response = st.session_state["history_query"][-1].split("Bot: ")[1]
         tags = re.findall(r'<(.*?)>', response)
         # print(tags)
         # remove all the tags in the response
         response = re.sub(r'<(.*?)>', '', response)
-
+        st.session_state["to_pipeline"] = []
         for tag in tags:
             if "*" in tag:
                 tag = tag[:-1]
@@ -183,6 +183,7 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
             st.button("Submit", on_click=add_pipeline)
         with clear:
             st.button("Clear", on_click=reset)
+        # print(st.session_state["to_pipeline"])
         st.success(response)
 
 
