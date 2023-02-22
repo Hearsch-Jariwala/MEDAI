@@ -185,6 +185,7 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
             st.button("Clear", on_click=reset)
         st.success(response)
 
+
 dataset, default_idx = set_up()
 data_opt = utils.dataset_opt(dataset.list_name(), default_idx, on_change=reset)
 data = dataset.get_data(data_opt)
