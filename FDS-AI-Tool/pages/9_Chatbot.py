@@ -19,9 +19,22 @@ def set_up():
 
     if "default_dataset_idx" not in st.session_state:
         st.session_state["default_dataset_idx"] = 0
+    
+    if "to_pipeline" not in st.session_state:
+        st.session_state["to_pipeline"] = []
+
+    if "history_query" not in st.session_state:
+        st.session_state["history_query"] = []
+    
+    if "last_query" not in st.session_state:
+        st.session_state["last_query"] = ""
 
     return st.session_state["dataset"], st.session_state["default_dataset_idx"]
 
+def reset():
+    st.session_state["to_pipeline"] = []
+    st.session_state["history_query"] = []
+    st.session_state["last_query"] = ""
 
 # Function to generate responses using OpenAI's text generation API
 def generate_response(prompt):
@@ -37,10 +50,19 @@ def generate_response(prompt):
     message = completions.choices[0].text
     return message
 
+def add_pipeline():
+    for pipe in st.session_state["to_pipeline"]:
+        tag = pipe["tag"]
+        add_to_pipe = pipe["add_to_pipe"]
+        mapping[tag]['function'](data, add_to_pipe)
+        
+# def update_last_query():
+#     st.session_state["last_query"] = st.session_state["user_input"]
+
 # Chatbot UI using Streamlit
 def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicate):
     st.title("Chatbot for Cleaning Datasets")
-    user_input = st.text_input("Ask a question related to cleaning datasets")
+    user_input = st.text_input("Ask a question related to cleaning datasets", key = "user_input", placeholder="How to clean the dataset?")
     tool_info = '''
         1. Home tab: A brief description of the functionality of the tool
         2. Dataset tab: Operations regarding I/O of datasets
@@ -65,12 +87,12 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         b8. Reg Plot
         b9. Line Plot
         4. Feature Engineering tab: Operations regarding feature engineers
-        a*. Add/Modify: Operations between one or several columns and the result will form a new column, the operations could be math operation, extract text by regular expression, group by categorical or group by numerical
+        a. Add/Modify: Operations between one or several columns and the result will form a new column, the operations could be math operation, extract text by regular expression, group by categorical or group by numerical
         b*. Change Data type: change data type for numerical data, e.g. float to integer
         c*. Imputation: impute null value with chosen strategy, e.g. mean for numerical data, mode for categorical data
         d*. Encoding: encode the value of chosen column, method could be ordinal, one-hot, target
         e*. Scaling: scale the chosen column, methods could be standard, min-max, robust
-        f*. Drop column: drop the chosen column
+        f. Drop column: drop the chosen column
         5*. Pipeline tab: operations performed in feature engineering tab could be added to pipeline, so that all the setting will be memorized and could be easily performed in the future
         6. Model Building: Build model with chosen dataset
         a*. Build Model: User can choose dataset, choose model from KNN, SVM, Logistic Regression, Decision Tree, Random Forest, or MLP
@@ -126,23 +148,25 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         Please answer the question in a step by step manner that can be followed using the functions mentioned above. For example:
         {sample_questions}
         Question: """
+    
+    if len(st.session_state["history_query"]) == 0:
+        st.session_state["history_query"].append(prompt)
 
     # print(prompt)
-    if user_input:
+    if user_input and user_input != st.session_state["last_query"]:
         response = generate_response(prompt + user_input)
+        st.session_state["history_query"].append("User: " + user_input)
+        st.session_state["history_query"].append("Bot: " + response)
+        st.session_state["last_query"] = user_input
+
+        # print(response)
+    if len(st.session_state["history_query"]) > 1:
+        print(st.session_state["last_query"])
+        response = st.session_state["history_query"][-1].split("Bot: ")[1]
         tags = re.findall(r'<(.*?)>', response)
         # print(tags)
         # remove all the tags in the response
         response = re.sub(r'<(.*?)>', '', response)
-        mapping = {
-            '1': 'Home',
-            '3a3': duplicate.duplicate,
-            "4b": {"name": "Change Data Type", "function": change_dtype.add_to_pipeline, "criteria": change_dtype.change_dtype_criteria, "error_msg": "All columns are the same data type"},
-            "4c": {"name": "Imputation", "function": imputation.add_to_pipeline, "criteria": imputation.impute_criteria, "error_msg": "No null value in the dataset"},
-            "4d": {"name": "Encoding", "function": encoding.add_to_pipeline, "criteria": encoding.encoding_criteria, "error_msg": "No categorical column in the dataset"},
-            "4e": {"name": "Scaling", "function": scaling.add_to_pipeline, "criteria": scaling.scaling_criteria, "error_msg": "No numerical column in the dataset"},
-            }
-
 
         for tag in tags:
             if "*" in tag:
@@ -150,15 +174,19 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
                 if mapping[tag]['criteria'](numerical_cols, categorical_cols, null_cols, has_duplicate):
                     c1, c2 = st.columns(2)
                     c1.write(mapping[tag]['name'])
-                    add_to_pipe = c2.checkbox("Add to pipeline")
-                    mapping[tag]['function'](data, add_to_pipe)
+                    add_to_pipe = c2.checkbox("Add to pipeline", key = tag, on_change=None, args=None, kwargs=None)
+                    st.session_state["to_pipeline"].append({"tag":tag, "add_to_pipe":add_to_pipe})
                 else:
                     st.write(f"{mapping[tag]['error_msg']}")
-        
+        submit, clear = st.columns(2)
+        with submit:
+            st.button("Submit", on_click=add_pipeline)
+        with clear:
+            st.button("Clear", on_click=reset)
         st.success(response)
 
 dataset, default_idx = set_up()
-data_opt = utils.dataset_opt(dataset.list_name(), default_idx)
+data_opt = utils.dataset_opt(dataset.list_name(), default_idx, on_change=reset)
 data = dataset.get_data(data_opt)
 rows, cols = data.shape
 columns = ", ".join(data.columns.tolist())
@@ -175,5 +203,14 @@ dataset_info = f'''
                 Columns with null values should be imputed or deleted before training the model, {null_cols} columns have null values.
                 Duplicated rows should be removed before training the model, otherwise, no actions for duplicate rows. The dataset {has_duplicates} duplicated rows.
                 '''
+
+mapping = {
+            '1': 'Home',
+            '3a3': duplicate.duplicate,
+            "4b": {"name": "Change Data Type", "function": change_dtype.add_to_pipeline, "criteria": change_dtype.change_dtype_criteria, "error_msg": "All columns are the same data type"},
+            "4c": {"name": "Imputation", "function": imputation.add_to_pipeline, "criteria": imputation.impute_criteria, "error_msg": "No null value in the dataset"},
+            "4d": {"name": "Encoding", "function": encoding.add_to_pipeline, "criteria": encoding.encoding_criteria, "error_msg": "No categorical column in the dataset"},
+            "4e": {"name": "Scaling", "function": scaling.add_to_pipeline, "criteria": scaling.scaling_criteria, "error_msg": "No numerical column in the dataset"},
+            }
 
 chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicates)
