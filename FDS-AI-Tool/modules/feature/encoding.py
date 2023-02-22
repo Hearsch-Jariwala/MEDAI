@@ -126,6 +126,9 @@ def add_to_pipeline(data, add_pipeline):
 	if add_pipeline:
 		vars = utils.get_categorical(data)
 		for var in vars:
-			enc = encoder.Encoder(strategy="onehot", column=var)
-			name = f"{var} one-hot encoding"
-			utils.add_pipeline(name, enc)
+			if data[var].nunique() < 10:
+				enc = encoder.Encoder(strategy="onehot", column=var)
+				new_data = enc.fit_transform(data)
+				name = f"{var} one-hot encoding"
+				utils.add_pipeline(name, enc)
+				data = new_data

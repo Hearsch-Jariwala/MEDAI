@@ -67,6 +67,6 @@ def add_to_pipeline(data, add_pipeline):
 	if add_pipeline:
 		vars = utils.get_numerical(data)
 		sc = scaler.Scaler("Standard Scaler", vars)
-
+		new_value = sc.fit_transform(data)
 		name = f"Feature scaling using Standard Scaler"
 		utils.add_pipeline(name, sc)

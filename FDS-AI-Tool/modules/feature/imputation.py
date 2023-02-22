@@ -77,12 +77,15 @@ def add_to_pipeline(data, add_to_pipeline):
 
 	if len(null_var) and add_to_pipeline:
 		for var in null_var:
+
 			if var in num_var:
+				mean = data[var].mean()
 				name = f"{var} imputation"
-				imp = imputer.Imputer(strategy="mean", columns=[var])
+				imp = imputer.Imputer(strategy="mean", columns=[var], fill_value=mean, group_col=None)
 			else:
+				mode = data[var].mode().values[0]
 				name = f"{var} imputation"
-				imp = imputer.Imputer(strategy="mode", columns=[var])
+				imp = imputer.Imputer(strategy="mode", columns=[var], fill_value=mode, group_col=None)
 			utils.add_pipeline(name, imp)
 
 def impute_cat(data, var, low_cardinality):
