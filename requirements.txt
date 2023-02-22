@@ -9,4 +9,5 @@ openai==0.26.4
 python-dotenv==0.21.1
 seaborn==0.12.0
 category-encoders==2.5.0
-spacy==3.4.4streamlit-on-Hover-tabs==1.0.1
+spacy==3.4.4
+streamlit-on-Hover-tabs==1.0.1
