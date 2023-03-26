@@ -174,6 +174,26 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
                 if mapping[tag]['criteria'](numerical_cols, categorical_cols, null_cols, has_duplicate):
                     c1, c2 = st.columns(2)
                     c1.write(mapping[tag]['name'])
+                    #collapseble container
+                    if (("Change Data") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            change_dtype.change_dtype(data, data_opt)
+                    if (("Encoding") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            encoding.encoding(data, data_opt)
+                    if (("Scaling") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            scaling.scaling(data, data_opt)
+                    if (("creation") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            creation.creation(data, data_opt)
+                    if (("imputation") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            imputation.imputation(data, data_opt)
+                    if (("Dropping") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            dropping.dropping(data, data_opt)
+
                     add_to_pipe = c2.checkbox("Add to pipeline", key = tag, on_change=None, args=None, kwargs=None)
                     st.session_state["to_pipeline"].append({"tag":tag, "add_to_pipe":add_to_pipe})
                 else:
