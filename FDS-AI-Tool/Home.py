@@ -10,7 +10,7 @@ except:
     st.session_state["list_data"] = ["-"]
     list_data = st.session_state["list_data"]
 
-st.image("imgs/logo.png", use_column_width=True)
+st.image("imgs/logo1.png", use_column_width=True)
 st.title("Welcome to Fluid Data Stream!")
 st.markdown(
     """
@@ -90,6 +90,12 @@ with st.expander(label = "Exploratory Data"):
 	Group your data by variable(s) or column(s) and then apply the aggregate function.
 	"""
 )
+
+with st.expander(label = "Power-BI dashboard"):
+     st.markdown(
+          "Titanic dataset analysis using Power BI"
+	 )
+
 
 
 
