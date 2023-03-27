@@ -42,6 +42,9 @@ def set_up():
     if "last_query" not in st.session_state:
         st.session_state["last_query"] = ""
 
+    if "new_audio_input" not in st.session_state:
+        st.session_state["new_audio_input"] = False
+
     return st.session_state["dataset"], st.session_state["default_dataset_idx"]
 
 
