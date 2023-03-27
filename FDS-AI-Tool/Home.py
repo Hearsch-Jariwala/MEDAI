@@ -11,10 +11,11 @@ except:
     list_data = st.session_state["list_data"]
 
 st.image("imgs/logo1.png", use_column_width=True)
-st.title("Welcome to Fluid Data Stream!")
+st.title("Welcome to HAPI!")
+st.subheader("Project: Human-AI Partnership Initiative (HAPI)")
 st.markdown(
     """
-	FDS-Tool is a web app to help people to do some machine learning techniques 
+	HAPI is a web app to help people to do some machine learning techniques 
 	such as exploratory data, preprocessing and model building. The most interesting part
 	about this app is that you can do all of those things **WITHOUT CODE**.
 	"""

@@ -4,9 +4,11 @@ import streamlit as st
 import openai
 from modules.classes import mongo_data
 from modules import utils
+from modules.chatbot.record import transcribe
 from modules.dataframe import duplicate
 from modules.feature import change_dtype, imputation, encoding, scaling, creation, dropping
-
+from modules.dataset import split
+from modules.powerBI import insight
 
 # OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -36,6 +38,38 @@ def reset():
     st.session_state["history_query"] = []
 
 
+dataset, default_idx = set_up()
+data_opt = utils.dataset_opt(dataset.list_name(), default_idx, on_change=reset)
+new_idx = dataset.list_name().index(data_opt)
+st.session_state["default_idx"] = new_idx
+data = dataset.get_data(data_opt)
+rows, cols = data.shape
+columns = ", ".join(data.columns.tolist())
+numerical_cols = ", ".join(utils.get_numerical(data)) if utils.get_numerical(data) else "none"
+categorical_cols = ", ".join(utils.get_categorical(data)) if utils.get_categorical(data) else "none"
+null_cols = ", ".join(data.columns[data.isnull().any()].tolist()) if data.isnull().any().any() else "No"
+has_duplicates = "has" if data.duplicated().any() else "has no"
+
+dataset_info = f'''
+                The dataset contains {rows} rows and {cols} columns. The columns are {columns}.
+                Among the columns, {numerical_cols} are numerical columns and {categorical_cols} are categorical columns.
+                Categorical columns should be encoded before training the model.
+                Numerical columns should be scaled before training the model.
+                Columns with null values should be imputed or deleted before training the model, {null_cols} columns have null values.
+                Duplicated rows should be removed before training the model, otherwise, no actions for duplicate rows. The dataset {has_duplicates} duplicated rows.
+                '''
+
+mapping = {
+            '1': 'Home',
+            '3a3': duplicate.duplicate,
+            "2c": {"name": "Split Dataset", "function": split.split_chatbot, "criteria": split.split_dataset_criteria, "error_msg": "Failed to split the dataset"},
+            "8": {"name": "Insight", "function": insight.powerbi_dashboard, "criteria": insight.insight_criteria, "error_msg": "Failed to generate insights"},
+            "4b": {"name": "Change Data Type", "function": change_dtype.add_to_pipeline, "criteria": change_dtype.change_dtype_criteria, "error_msg": "All columns are the same data type"},
+            "4c": {"name": "Imputation", "function": imputation.add_to_pipeline, "criteria": imputation.impute_criteria, "error_msg": "No null value in the dataset"},
+            "4d": {"name": "Encoding", "function": encoding.add_to_pipeline, "criteria": encoding.encoding_criteria, "error_msg": "No categorical column in the dataset"},
+            "4e": {"name": "Scaling", "function": scaling.add_to_pipeline, "criteria": scaling.scaling_criteria, "error_msg": "No numerical column in the dataset"},
+            }
+
 # Function to generate responses using OpenAI's text generation API
 def generate_response(prompt):
     completions = openai.Completion.create(
@@ -53,22 +87,33 @@ def generate_response(prompt):
 def add_pipeline():
     for pipe in st.session_state["to_pipeline"]:
         tag = pipe["tag"]
-        add_to_pipe = pipe["add_to_pipe"]
-        mapping[tag]['function'](data, add_to_pipe)
+        if tag == "8":
+            continue
+        else:
+            add_to_pipe = pipe["add_to_pipe"]
+            mapping[tag]['function'](data, add_to_pipe)
+    for pipe in st.session_state["to_pipeline"]:
+        if pipe["tag"] == "8":
+            return True
+    return False
         
 # def update_last_query():
 #     st.session_state["last_query"] = st.session_state["user_input"]
 
 # Chatbot UI using Streamlit
-def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicate):
+def ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicate):
     st.title("Chatbot for Cleaning Datasets")
-    user_input = st.text_input("Ask a question related to cleaning datasets", key = "user_input", placeholder="How to clean the dataset?")
+
+    audio_input = transcribe()
+    placeholder = "How to clean the dataset?" if audio_input == None else audio_input
+    text_input = st.text_input("Ask a question related to cleaning datasets", key = "user_input", placeholder=placeholder)
+    user_input = audio_input if audio_input != None else text_input
     tool_info = '''
         1. Home tab: A brief description of the functionality of the tool
         2. Dataset tab: Operations regarding I/O of datasets
         a. Dataset List: list the dataset name of existing datasets, and let the user select the default dataset for other operations. Users can also delete datasets here.
         b. Read Dataset: Users can load the dataset to the tool, by uploading from the local machine, loading from GitHub URL, manually inputting, or trying with a sample dataset.
-        c. Split Dataset: Users can split the dataset into different datasets, e.g., train set and test set. Users can also specify the percentage of the test set and the random state of the split.
+        c*. Split Dataset: Users can split the dataset into different datasets, e.g., train set and test set. Users can also specify the percentage of the test set and the random state of the split.
         d. Download Dataset: Users can display the data, set the download name, set the download parameter such as including the header and index here, and download the dataset here.
         3. Exploratory Data tab: Explore the dataset by graphs and statistics of the dataset
         a. Statistics
@@ -100,9 +145,11 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         c*. Model Prediction: Use trained model to make prediction on other dataset
         d*. Delete Model: delete the chosen model
         7*. Named Entity Recognition tab: User can label the named entity in the dataset
+        8*. Power BI Dashboard: provide insight of the dataset
 
         The function of prefixes containing * is operational, while the others are demonstrative.
     '''
+    
     sample_answers_with_null = f'''
         Question: How can I clean the dataset
         Answer:
@@ -119,7 +166,6 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
         ''' if has_duplicate == "has" else " "
 
-    
     sample_questions = f'''
         Question: How can I fill in the missing values
         Answer:
@@ -134,12 +180,24 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
         Answer:
         1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows
 
+        Question: Can you give me some insights about the dataset
+        Answer:
+        1. <8> Power BI Dashboard, give some insights about the dataset
+
+        Question: Can you help me create a model to predict the target column
+        Answer:
+        1. <6a> Model Building tab, Build Model, build a model to predict the target column
+
+        Question: How can I split the dataset into train set and test set
+        Answer:
+        1. <2c*> Dataset tab, Split Dataset, split the dataset into train set and test set
+
+
         {sample_answers_with_null}
 
         {sample_answers_with_duplicate}
         '''
     
-
     prompt = f"""
         Tool information: {tool_info}
         
@@ -174,45 +232,37 @@ def chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_dupli
                 if mapping[tag]['criteria'](numerical_cols, categorical_cols, null_cols, has_duplicate):
                     c1, c2 = st.columns(2)
                     c1.write(mapping[tag]['name'])
+
+                    if (("Change Data") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            change_dtype.change_dtype(data, data_opt)
+                    if (("Encoding") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            encoding.encoding(data, data_opt)
+                    if (("Scaling") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            scaling.scaling(data, data_opt)
+                    if (("creation") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            creation.creation(data, data_opt)
+                    if (("imputation") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            imputation.imputation(data, data_opt)
+                    if (("Dropping") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            dropping.dropping(data, data_opt)
                     add_to_pipe = c2.checkbox("Add to pipeline", key = tag, on_change=None, args=None, kwargs=None)
                     st.session_state["to_pipeline"].append({"tag":tag, "add_to_pipe":add_to_pipe})
                 else:
                     st.write(f"{mapping[tag]['error_msg']}")
         submit, clear = st.columns(2)
         with submit:
-            st.button("Submit", on_click=add_pipeline)
+            ins = st.button("Submit", on_click=add_pipeline)
         with clear:
             st.button("Clear", on_click=reset)
         # print(st.session_state["to_pipeline"])
         st.success(response)
+        if ins:
+            insight.powerbi_dashboard()
 
-
-dataset, default_idx = set_up()
-data_opt = utils.dataset_opt(dataset.list_name(), default_idx, on_change=reset)
-data = dataset.get_data(data_opt)
-rows, cols = data.shape
-columns = ", ".join(data.columns.tolist())
-numerical_cols = ", ".join(utils.get_numerical(data)) if utils.get_numerical(data) else "none"
-categorical_cols = ", ".join(utils.get_categorical(data)) if utils.get_categorical(data) else "none"
-null_cols = ", ".join(data.columns[data.isnull().any()].tolist()) if data.isnull().any().any() else "No"
-has_duplicates = "has" if data.duplicated().any() else "has no"
-
-dataset_info = f'''
-                The dataset contains {rows} rows and {cols} columns. The columns are {columns}.
-                Among the columns, {numerical_cols} are numerical columns and {categorical_cols} are categorical columns.
-                Categorical columns should be encoded before training the model.
-                Numerical columns should be scaled before training the model.
-                Columns with null values should be imputed or deleted before training the model, {null_cols} columns have null values.
-                Duplicated rows should be removed before training the model, otherwise, no actions for duplicate rows. The dataset {has_duplicates} duplicated rows.
-                '''
-
-mapping = {
-            '1': 'Home',
-            '3a3': duplicate.duplicate,
-            "4b": {"name": "Change Data Type", "function": change_dtype.add_to_pipeline, "criteria": change_dtype.change_dtype_criteria, "error_msg": "All columns are the same data type"},
-            "4c": {"name": "Imputation", "function": imputation.add_to_pipeline, "criteria": imputation.impute_criteria, "error_msg": "No null value in the dataset"},
-            "4d": {"name": "Encoding", "function": encoding.add_to_pipeline, "criteria": encoding.encoding_criteria, "error_msg": "No categorical column in the dataset"},
-            "4e": {"name": "Scaling", "function": scaling.add_to_pipeline, "criteria": scaling.scaling_criteria, "error_msg": "No numerical column in the dataset"},
-            }
-
-chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicates)
+ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicates)

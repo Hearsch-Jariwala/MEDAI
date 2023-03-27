@@ -1,5 +1,5 @@
 import streamlit as st  
-
+import pandas as pd
 from modules import utils
 from modules.dataset import read
 from sklearn.model_selection import train_test_split
@@ -70,3 +70,32 @@ def split_dataset(dataset):
 
 	else:
 		st.header("No Dataset Found!")
+
+def split_chatbot(data: pd.DataFrame, add_to_pipeline = True):
+	dataset = st.session_state["dataset"]
+	train_name = "titanic_train"
+	test_name = "titanic_test"
+
+	test_size = 0.2
+	random_state = 0
+	shuffle = True
+	stratify = None
+
+	is_valid = [read.validate(name, dataset.list_name()) for name in [train_name, test_name]]
+
+	if all(is_valid):
+		stratify = None if (stratify == "-") else stratify
+		df_train, df_test = train_test_split(data, test_size=test_size, random_state=random_state, shuffle=shuffle, stratify=stratify)
+		
+		df_train.reset_index(drop=True, inplace=True)
+		df_test.reset_index(drop=True, inplace=True)
+
+		dataset.add(train_name, df_train)
+		dataset.add(test_name, df_test)
+
+		st.success("Success")
+
+	return df_train, df_test
+
+def split_dataset_criteria(numerical, categorical, null, duplicate):
+	return True
