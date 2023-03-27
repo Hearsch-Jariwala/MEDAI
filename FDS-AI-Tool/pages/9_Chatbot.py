@@ -9,11 +9,14 @@ from modules.dataframe import duplicate
 from modules.feature import change_dtype, imputation, encoding, scaling, creation, dropping
 from modules.dataset import split
 from modules.powerBI import insight
+from modules.model import build_model
 
 # OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def set_up():
+    if "insight" not in st.session_state:
+        st.session_state["insight"] = False
     if "row_idx" not in st.session_state:
         st.session_state["row_idx"] = {}
     if "dataset" not in st.session_state:
@@ -36,6 +39,7 @@ def set_up():
 def reset():
     st.session_state["to_pipeline"] = []
     st.session_state["history_query"] = []
+    st.session_state["insight"] = False
 
 
 dataset, default_idx = set_up()
@@ -63,11 +67,12 @@ mapping = {
             '1': 'Home',
             '3a3': duplicate.duplicate,
             "2c": {"name": "Split Dataset", "function": split.split_chatbot, "criteria": split.split_dataset_criteria, "error_msg": "Failed to split the dataset"},
-            "8": {"name": "Insight", "function": insight.powerbi_dashboard, "criteria": insight.insight_criteria, "error_msg": "Failed to generate insights"},
+            "8a": {"name": "Insight", "function": insight.powerbi_dashboard, "criteria": insight.insight_criteria, "error_msg": "Failed to generate insights"},
             "4b": {"name": "Change Data Type", "function": change_dtype.add_to_pipeline, "criteria": change_dtype.change_dtype_criteria, "error_msg": "All columns are the same data type"},
             "4c": {"name": "Imputation", "function": imputation.add_to_pipeline, "criteria": imputation.impute_criteria, "error_msg": "No null value in the dataset"},
             "4d": {"name": "Encoding", "function": encoding.add_to_pipeline, "criteria": encoding.encoding_criteria, "error_msg": "No categorical column in the dataset"},
             "4e": {"name": "Scaling", "function": scaling.add_to_pipeline, "criteria": scaling.scaling_criteria, "error_msg": "No numerical column in the dataset"},
+            "6a": {"name": "Model Building", "function": build_model.model_chat, "criteria": build_model.model_chat_criteria, "error_msg": "Failed to build the model"},
             }
 
 # Function to generate responses using OpenAI's text generation API
@@ -85,17 +90,18 @@ def generate_response(prompt):
     return message
 
 def add_pipeline():
+    # print("add pipeline")
     for pipe in st.session_state["to_pipeline"]:
+        # print(pipe)
         tag = pipe["tag"]
-        if tag == "8":
-            continue
+        if tag == "8a":
+            st.session_state["insight"] = True
+            # print("assigned: ", st.session_state["insight"])
         else:
             add_to_pipe = pipe["add_to_pipe"]
             mapping[tag]['function'](data, add_to_pipe)
-    for pipe in st.session_state["to_pipeline"]:
-        if pipe["tag"] == "8":
-            return True
-    return False
+            
+
         
 # def update_last_query():
 #     st.session_state["last_query"] = st.session_state["user_input"]
@@ -139,13 +145,13 @@ def ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_d
         e*. Scaling: scale the chosen column, methods could be standard, min-max, robust
         f. Drop column: drop the chosen column
         5*. Pipeline tab: operations performed in feature engineering tab could be added to pipeline, so that all the setting will be memorized and could be easily performed in the future
-        6. Model Building: Build model with chosen dataset
+        6a*. Model Building: Build model with chosen dataset
         a*. Build Model: User can choose dataset, choose model from KNN, SVM, Logistic Regression, Decision Tree, Random Forest, or MLP
         b. Model Report: shows the metrics of the model on test set
         c*. Model Prediction: Use trained model to make prediction on other dataset
         d*. Delete Model: delete the chosen model
-        7*. Named Entity Recognition tab: User can label the named entity in the dataset
-        8*. Power BI Dashboard: provide insight of the dataset
+        7a*. Named Entity Recognition tab: User can label the named entity in the dataset
+        8a*. Power BI Dashboard: provide insight of the dataset
 
         The function of prefixes containing * is operational, while the others are demonstrative.
     '''
@@ -174,23 +180,23 @@ def ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_d
         
         Question: How can I find the correlation between columns
         Answer:
-        1. <3a2> Exploratory Data tab, Statistics, Correlation, find the correlation between columns
+        1. <3a2> Exploratory Data tab, Statistics, Correlation, find the correlation between columns.
 
         Question: How can I find the duplicate rows
         Answer:
-        1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows
+        1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows.
 
         Question: Can you give me some insights about the dataset
         Answer:
-        1. <8> Power BI Dashboard, give some insights about the dataset
+        1. <8a*> Power BI Dashboard, give some insights about the dataset.
 
         Question: Can you help me create a model to predict the target column
         Answer:
-        1. <6a> Model Building tab, Build Model, build a model to predict the target column
+        1. <6a*> Model Building tab, Build Model, build a model to predict the target column.
 
         Question: How can I split the dataset into train set and test set
         Answer:
-        1. <2c*> Dataset tab, Split Dataset, split the dataset into train set and test set
+        1. <2c*> Dataset tab, Split Dataset, split the dataset into train set and test set.
 
 
         {sample_answers_with_null}
@@ -221,10 +227,12 @@ def ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_d
     if len(st.session_state["history_query"]) > 1:
         # print(st.session_state["last_query"])
         response = st.session_state["history_query"][-1].split("Bot: ")[1]
+        # print(response)
         tags = re.findall(r'<(.*?)>', response)
         # print(tags)
         # remove all the tags in the response
         response = re.sub(r'<(.*?)>', '', response)
+        
         st.session_state["to_pipeline"] = []
         for tag in tags:
             if "*" in tag:
@@ -245,24 +253,30 @@ def ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_d
                     if (("creation") in mapping[tag]['name']):
                         with st.expander(label = mapping[tag]['name']):
                             creation.creation(data, data_opt)
-                    if (("imputation") in mapping[tag]['name']):
+                    if (("Imputation") in mapping[tag]['name']):
                         with st.expander(label = mapping[tag]['name']):
                             imputation.imputation(data, data_opt)
                     if (("Dropping") in mapping[tag]['name']):
                         with st.expander(label = mapping[tag]['name']):
                             dropping.dropping(data, data_opt)
+                    if (("Model") in mapping[tag]['name']):
+                        with st.expander(label = mapping[tag]['name']):
+                            build_model.model_chat(data, data_opt)
                     add_to_pipe = c2.checkbox("Add to pipeline", key = tag, on_change=None, args=None, kwargs=None)
                     st.session_state["to_pipeline"].append({"tag":tag, "add_to_pipe":add_to_pipe})
                 else:
                     st.write(f"{mapping[tag]['error_msg']}")
         submit, clear = st.columns(2)
+        
         with submit:
-            ins = st.button("Submit", on_click=add_pipeline)
+            st.button("Submit", on_click=add_pipeline)
+
         with clear:
             st.button("Clear", on_click=reset)
         # print(st.session_state["to_pipeline"])
         st.success(response)
-        if ins:
+        # print("received: ", st.session_state["insight"])
+        if st.session_state["insight"]:
             insight.powerbi_dashboard()
 
 ask_chatbot(dataset_info, numerical_cols, categorical_cols, null_cols, has_duplicates)
