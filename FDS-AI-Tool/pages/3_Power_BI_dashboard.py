@@ -18,12 +18,13 @@ def powerbi_dashboard():
     """,
     unsafe_allow_html=True
 )
+    st.write("Insights about the dataset:")
 
     completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
+    model="gpt-4",
     messages=[
         {"role": "system", "content" : "You’re a Data analyst"},
-        {"role": "user", "content": "Give some insights on this https://app.powerbi.com/view?r=eyJrIjoiMDJmMzMxNjgtNThkZi00OTQ2LWIzODctMWJkMDc5YTAyY2VhIiwidCI6ImVmMmVhY2ZjLTZiYTctNDVjMy1iZDRjLTNkMThmYzAzMDUxZCIsImMiOjF9 Power BI dashboard."}
+        {"role": "user", "content": "Generate some insights on this https://community.powerbi.com/t5/Data-Stories-Gallery/Exploratory-Data-Analysis-of-the-Titanic-Dataset/m-p/2902210 Power BI dashboard"}
     ]
     )
 
