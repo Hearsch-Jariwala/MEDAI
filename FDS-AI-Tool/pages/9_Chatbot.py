@@ -209,11 +209,11 @@ def ask_chatbot(
         e*. Scaling: scale the chosen column, methods could be standard, min-max, robust
         f. Drop column: drop the chosen column
         5*. Pipeline tab: operations performed in feature engineering tab could be added to pipeline, so that all the setting will be memorized and could be easily performed in the future
-        6a*. Model Building: Build model with chosen dataset
+        6. Model Building: Build model with chosen dataset
         a*. Build Model: User can choose dataset, choose model from KNN, SVM, Logistic Regression, Decision Tree, Random Forest, or MLP
         b. Model Report: shows the metrics of the model on test set
-        c*. Model Prediction: Use trained model to make prediction on other dataset
-        d*. Delete Model: delete the chosen model
+        c. Model Prediction: Use trained model to make prediction on other dataset
+        d. Delete Model: delete the chosen model
         7a*. Named Entity Recognition tab: User can label the named entity in the dataset
         8a*. Power BI Dashboard: provide insight of the dataset
 
