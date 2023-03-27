@@ -5,9 +5,11 @@ scikit-learn==1.1.2
 streamlit==1.17.0
 pymongo==4.3.3
 text-highlighter==0.0.7
-openai==0.26.4
+openai==0.27.2
 python-dotenv==0.21.1
 seaborn==0.12.0
 category-encoders==2.5.0
 spacy==3.4.4
 streamlit-on-Hover-tabs==1.0.1
+streamlit-webrtc==0.45.0
+pydub==0.25.1
