@@ -1,55 +1,61 @@
-import streamlit as st  
+import streamlit as st
 import pandas as pd
 import pickle
 
 from modules import utils
 
 try:
-	dataset = st.session_state["dataset"]
-	pipe = st.session_state["pipeline"]
+    dataset = st.session_state["dataset"]
+    pipe = st.session_state["pipeline"]
 
 except KeyError:
-	st.header("No Pipeline Found")
-	st.stop()
+    st.header("No Pipeline Found")
+    st.stop()
 
 except Exception as e:
-	st.warning(e)
-	st.stop()
+    st.warning(e)
+    st.stop()
 
 # menus = ["List Pipeline", "Apply Pipeline", "Download", "Upload"]
 menus = ["Pipeline Step List", "Apply Pipeline"]
 tabs = [tab for tab in st.tabs(menus)]
 
 with tabs[0]:
-	pipe_df = pd.DataFrame({
-			"Process Name": [proc for proc in pipe.pipelines]
-		}, index=[f"Step {i+1}" for i in range(len(pipe.pipelines))])
+    pipe_df = pd.DataFrame(
+        {"Process Name": [proc for proc in pipe.pipelines]},
+        index=[f"Step {i+1}" for i in range(len(pipe.pipelines))],
+    )
 
-	st.table(pipe_df)
+    st.table(pipe_df)
 
-	if st.button("Clear Pipeline"):
-		pipe.clear()
-		utils.rerun()
+    if st.button("Clear Pipeline"):
+        pipe.clear()
+        utils.rerun()
 
 with tabs[1]:
-	data_opt = st.selectbox(
-			"Select Dataset",
-			dataset.list_name(),
-			key="pipeline_data_opt"
-		)
+    data_opt = st.selectbox(
+        "Select Dataset", dataset.list_name(), key="pipeline_data_opt"
+    )
 
-	if st.button("Apply"):
-		data = dataset.get_data(data_opt)
-		new_value = pipe.transform(data)
+    if st.button("Apply"):
+        data = dataset.get_data(data_opt)
+        new_value = pipe.transform(data)
+        utils.update_value(data_opt, new_value)
+        st.success("Success")
 
-		utils.update_value(data_opt, new_value)
-		st.success("Success")
+    # added show sample in pipeline
+    data = dataset.get_data(data_opt)
+    show_sample = st.checkbox("Show Sample", key=f"show_pipeline_sample")
+    if (
+        show_sample
+    ):  # if show_sample is True and filepath_or_buffer is not None
+        st.dataframe(data.head())
 
 # with tabs[2]:
 # 	col1, col2 = st.columns([8,2])
 # 	filename = col1.text_input("Filename", "pipeline")
 # 	file_format = col2.selectbox("Format", [".pkl"])
-	
+
 # 	saved_pipeline = pickle.dumps(pipe)
 # 	btn = st.download_button(
 # 			label="Download",

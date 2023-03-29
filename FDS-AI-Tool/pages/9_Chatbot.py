@@ -58,7 +58,12 @@ dataset, default_idx = set_up()
 data_opt = utils.dataset_opt(dataset.list_name(), default_idx, on_change=reset)
 new_idx = dataset.list_name().index(data_opt)
 st.session_state["default_idx"] = new_idx
+# added show data sample
 data = dataset.get_data(data_opt)
+show_sample = st.checkbox("Show Sample", key=f"show_chatbot_sample")
+if show_sample:  # if show_sample is True and filepath_or_buffer is not None
+    st.dataframe(data.head())
+
 rows, cols = data.shape
 columns = ", ".join(data.columns.tolist())
 numerical_cols = (
@@ -79,13 +84,13 @@ null_cols = (
 has_duplicates = "has" if data.duplicated().any() else "has no"
 
 dataset_info = f"""
-                The dataset contains {rows} rows and {cols} columns. The columns are {columns}.
-                Among the columns, {numerical_cols} are numerical columns and {categorical_cols} are categorical columns.
-                Categorical columns should be encoded before training the model.
-                Numerical columns should be scaled before training the model.
-                Columns with null values should be imputed or deleted before training the model, {null_cols} columns have null values.
-                Duplicated rows should be removed before training the model, otherwise, no actions for duplicate rows. The dataset {has_duplicates} duplicated rows.
-                """
+				The dataset contains {rows} rows and {cols} columns. The columns are {columns}.
+				Among the columns, {numerical_cols} are numerical columns and {categorical_cols} are categorical columns.
+				Categorical columns should be encoded before training the model.
+				Numerical columns should be scaled before training the model.
+				Columns with null values should be imputed or deleted before training the model, {null_cols} columns have null values.
+				Duplicated rows should be removed before training the model, otherwise, no actions for duplicate rows. The dataset {has_duplicates} duplicated rows.
+				"""
 
 mapping = {
     "1": "Home",
@@ -182,111 +187,111 @@ def ask_chatbot(
     )
     user_input = audio_input if audio_input != None else text_input
     tool_info = """
-        1. Home tab: A brief description of the functionality of the tool
-        2. Dataset tab: Operations regarding I/O of datasets
-        a. Dataset List: list the dataset name of existing datasets, and let the user select the default dataset for other operations. Users can also delete datasets here.
-        b. Read Dataset: Users can load the dataset to the tool, by uploading from the local machine, loading from GitHub URL, manually inputting, or trying with a sample dataset.
-        c*. Split Dataset: Users can split the dataset into different datasets, e.g., train set and test set. Users can also specify the percentage of the test set and the random state of the split.
-        d. Download Dataset: Users can display the data, set the download name, set the download parameter such as including the header and index here, and download the dataset here.
-        3. Exploratory Data tab: Explore the dataset by graphs and statistics of the dataset
-        a. Statistics
-        a1. Display: Users can display the dataset to see the exact content of the dataset, display the information of the dataset such as null value, unique value and data type by column, and calculate the statistics such as count, mean, standard deviation by column
-        a2. Correlation: Calculate the correlation between each column
-        a3. Duplicate: Find duplicate rows and delete them
-        a4. Aggregation: Perform aggregation functions by selected column values
-        b. Graph
-        b1. bar plot
-        b2. Pie Plot
-        b3. Count Plot
-        b4. Histogram
-        b5. Box Plot
-        b6. Violin Plot
-        b7. Scatter Plot
-        b8. Reg Plot
-        b9. Line Plot
-        4. Feature Engineering tab: Operations regarding feature engineers
-        a. Add/Modify: Operations between one or several columns and the result will form a new column, the operations could be math operation, extract text by regular expression, group by categorical or group by numerical
-        b*. Change Data type: change data type for numerical data, e.g. float to integer
-        c*. Imputation: impute null value with chosen strategy, e.g. mean for numerical data, mode for categorical data
-        d*. Encoding: encode the value of chosen column, method could be ordinal, one-hot, target
-        e*. Scaling: scale the chosen column, methods could be standard, min-max, robust
-        f. Drop column: drop the chosen column
-        5*. Pipeline tab: operations performed in feature engineering tab could be added to pipeline, so that all the setting will be memorized and could be easily performed in the future
-        6. Model Building: Build model with chosen dataset
-        a*. Build Model: User can choose dataset, choose model from KNN, SVM, Logistic Regression, Decision Tree, Random Forest, or MLP
-        b. Model Report: shows the metrics of the model on test set
-        c. Model Prediction: Use trained model to make prediction on other dataset
-        d. Delete Model: delete the chosen model
-        7a*. Named Entity Recognition tab: User can label the named entity in the dataset
-        8a*. Power BI Dashboard: provide insight of the dataset
+		1. Home tab: A brief description of the functionality of the tool
+		2. Dataset tab: Operations regarding I/O of datasets
+		a. Dataset List: list the dataset name of existing datasets, and let the user select the default dataset for other operations. Users can also delete datasets here.
+		b. Read Dataset: Users can load the dataset to the tool, by uploading from the local machine, loading from GitHub URL, manually inputting, or trying with a sample dataset.
+		c*. Split Dataset: Users can split the dataset into different datasets, e.g., train set and test set. Users can also specify the percentage of the test set and the random state of the split.
+		d. Download Dataset: Users can display the data, set the download name, set the download parameter such as including the header and index here, and download the dataset here.
+		3. Exploratory Data tab: Explore the dataset by graphs and statistics of the dataset
+		a. Statistics
+		a1. Display: Users can display the dataset to see the exact content of the dataset, display the information of the dataset such as null value, unique value and data type by column, and calculate the statistics such as count, mean, standard deviation by column
+		a2. Correlation: Calculate the correlation between each column
+		a3. Duplicate: Find duplicate rows and delete them
+		a4. Aggregation: Perform aggregation functions by selected column values
+		b. Graph
+		b1. bar plot
+		b2. Pie Plot
+		b3. Count Plot
+		b4. Histogram
+		b5. Box Plot
+		b6. Violin Plot
+		b7. Scatter Plot
+		b8. Reg Plot
+		b9. Line Plot
+		4. Feature Engineering tab: Operations regarding feature engineers
+		a. Add/Modify: Operations between one or several columns and the result will form a new column, the operations could be math operation, extract text by regular expression, group by categorical or group by numerical
+		b*. Change Data type: change data type for numerical data, e.g. float to integer
+		c*. Imputation: impute null value with chosen strategy, e.g. mean for numerical data, mode for categorical data
+		d*. Encoding: encode the value of chosen column, method could be ordinal, one-hot, target
+		e*. Scaling: scale the chosen column, methods could be standard, min-max, robust
+		f. Drop column: drop the chosen column
+		5*. Pipeline tab: operations performed in feature engineering tab could be added to pipeline, so that all the setting will be memorized and could be easily performed in the future
+		6. Model Building: Build model with chosen dataset
+		a*. Build Model: User can choose dataset, choose model from KNN, SVM, Logistic Regression, Decision Tree, Random Forest, or MLP
+		b. Model Report: shows the metrics of the model on test set
+		c. Model Prediction: Use trained model to make prediction on other dataset
+		d. Delete Model: delete the chosen model
+		7a*. Named Entity Recognition tab: User can label the named entity in the dataset
+		8a*. Power BI Dashboard: provide insight of the dataset
 
-        The function of prefixes containing * is operational, while the others are demonstrative.
-    """
+		The function of prefixes containing * is operational, while the others are demonstrative.
+	"""
 
     sample_answers_with_null = (
         f"""
-        Question: How can I clean the dataset
-        Answer:
-        1. <4c*> Feature Engineering tab, Imputation, impute the null values, which are {null_cols}
-        2. <4d*> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
-        3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
-        """
+		Question: How can I clean the dataset
+		Answer:
+		1. <4c*> Feature Engineering tab, Imputation, impute the null values, which are {null_cols}
+		2. <4d*> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
+		3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
+		"""
         if null_cols != "No"
         else " "
     )
 
     sample_answers_with_duplicate = (
         f"""
-        Question: How can I clean the dataset
-        Answer:
-        1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows
-        2. <4d*> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
-        3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
-        """
+		Question: How can I clean the dataset
+		Answer:
+		1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows
+		2. <4d*> Feature Engineering tab, Encoding, encode the categorical columns, which are {categorical_cols}
+		3. <4e*> Feature Engineering tab, Scaling, scale the numerical columns, which are {numerical_cols}
+		"""
         if has_duplicate == "has"
         else " "
     )
 
     sample_questions = f"""
-        Question: How can I fill in the missing values
-        Answer:
-        1. <3a1> Exploratory Data tab, Statistics, Display, find the columns with null values
-        2. <4c*> Feature Engineering tab, Imputation, impute the null values
-        
-        Question: How can I find the correlation between columns
-        Answer:
-        1. <3a2> Exploratory Data tab, Statistics, Correlation, find the correlation between columns.
+		Question: How can I fill in the missing values
+		Answer:
+		1. <3a1> Exploratory Data tab, Statistics, Display, find the columns with null values
+		2. <4c*> Feature Engineering tab, Imputation, impute the null values
+		
+		Question: How can I find the correlation between columns
+		Answer:
+		1. <3a2> Exploratory Data tab, Statistics, Correlation, find the correlation between columns.
 
-        Question: How can I find the duplicate rows
-        Answer:
-        1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows.
+		Question: How can I find the duplicate rows
+		Answer:
+		1. <3a3> Exploratory Data tab, Statistics, Duplicate, find the duplicate rows.
 
-        Question: Can you give me some insights about the dataset
-        Answer:
-        1. <8a*> Power BI Dashboard, give some insights about the dataset.
+		Question: Can you give me some insights about the dataset
+		Answer:
+		1. <8a*> Power BI Dashboard, give some insights about the dataset.
 
-        Question: Can you help me create a model to predict the target column
-        Answer:
-        1. <6a*> Model Building tab, Build Model, build a model to predict the target column.
+		Question: Can you help me create a model to predict the target column
+		Answer:
+		1. <6a*> Model Building tab, Build Model, build a model to predict the target column.
 
-        Question: How can I split the dataset into train set and test set
-        Answer:
-        1. <2c*> Dataset tab, Split Dataset, split the dataset into train set and test set.
+		Question: How can I split the dataset into train set and test set
+		Answer:
+		1. <2c*> Dataset tab, Split Dataset, split the dataset into train set and test set.
 
 
-        {sample_answers_with_null}
+		{sample_answers_with_null}
 
-        {sample_answers_with_duplicate}
-        """
+		{sample_answers_with_duplicate}
+		"""
 
     prompt = f"""
-        Tool information: {tool_info}
-        
-        Dataset information: {dataset_info}
+		Tool information: {tool_info}
+		
+		Dataset information: {dataset_info}
 
-        Please answer the question in a step by step manner that can be followed using the functions mentioned above. For example:
-        {sample_questions}
-        Question: """
+		Please answer the question in a step by step manner that can be followed using the functions mentioned above. For example:
+		{sample_questions}
+		Question: """
 
     if len(st.session_state["history_query"]) == 0:
         st.session_state["history_query"].append(prompt)
