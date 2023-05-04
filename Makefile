@@ -4,7 +4,7 @@ install:
 	python3 -m spacy download en_core_web_sm
 
 deploy:
-	docker login fluidds.azurecr.io
+	docker login hapiweb.azurecr.io
 	docker build -t fds .
-	docker tag fds:latest fluidds.azurecr.io/fds:latest
-	docker push fluidds.azurecr.io/fds:latest
+	docker tag fds:latest hapiweb.azurecr.io/fds:latest
+	docker push hapiweb.azurecr.io/fds:latest
