@@ -1,4 +1,5 @@
-# FDS-No-Code-AI Tool
+
+# HAPI-No-Code-AI Tool
 ## Requirements
 - Package requirements specified in /FDS-AI-Tool/requirements.txt
 - Environment requirements
